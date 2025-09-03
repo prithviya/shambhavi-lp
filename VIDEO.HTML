@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Experience</title>
+  <!-- GSAP and plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
+  <style>
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background-color: #F4EEE6;
+      font-family: 'Lato', sans-serif;
+      color: #2D2926;
+    }
+
+    /* Preloader Fill & Counter */
+    #progress-fill {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100vh;
+      background-color: #2D2926;
+      z-index: 9999;
+      transition: width 0.3s ease-out;
+    }
+    #counter {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #2D2926;
+      background: rgba(244, 238, 230, 0.7);
+      padding: 10px 16px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(45, 41, 38, 0.3);
+      z-index: 10000;
+      user-select: none;
+    }
+
+    /* Main Content & Hero Section */
+    .smooth-scroll {
+      opacity: 0;
+      height: 100%;
+    }
+    .hero-content {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+    .line {
+      opacity: 0;
+      transform: translateY(50px) scale(0.95);
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      margin: 0.5rem 0;
+      will-change: transform, opacity;
+      line-height: 1.2;
+  }
+
+    .line:first-child {
+        font-weight: 700;
+        color: #2D2926;
+    }
+    .line span
+    {
+        font-weight: 300;
+        font-style: italic;
+    }
+    /* Content Visible After Load */
+    .smooth-scroll.visible {
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+  <!-- Preloader -->
+  <div id="progress-fill"></div>
+  <div id="counter">0%</div>
+
+  <!-- Main Content -->
+  <div class="smooth-scroll" data-scroll-container>
+    <div class="hero-content" data-scroll-section>
+      <div class="text-container-main">
+        <div class="line" data-scroll data-scroll-call="line1">
+          Where design<br/><span>breathes,</span>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const progressFill = document.getElementById('progress-fill');
+      const counter = document.getElementById('counter');
+      const main = document.querySelector('.smooth-scroll');
+
+      let progress = 0;
+      const duration = 4000;
+      const interval = 40;
+      const step = 100 / (duration / interval);
+
+     
+      const loadingInterval = setInterval(() => {
+        progress += step;
+        if (progress > 100) progress = 100;
+
+        progressFill.style.width = progress + 'vw';
+        counter.textContent = Math.floor(progress) + '%';
+
+        if (progress >= 100) {
+          clearInterval(loadingInterval);
+          finishLoading();
+        }
+      }, interval);
+
+      function finishLoading() {
+        progressFill.style.transition = 'opacity 0.6s ease';
+        counter.style.transition = 'opacity 0.6s ease';
+        progressFill.style.opacity = '0';
+        counter.style.opacity = '0';
+
+        setTimeout(() => {
+          progressFill.style.display = 'none';
+          counter.style.display = 'none';
+          initScrollAnimation();
+        }, 600);
+      }
+
+      function initScrollAnimation() {
+        main.classList.add('visible');
+        document.body.style.overflow = 'auto';
+
+        const scroll = new LocomotiveScroll({
+          el: main,
+          smooth: true,
+          inertia: 0.8,
+        });
+
+        gsap.registerPlugin(ScrollTrigger);
+        ScrollTrigger.scrollerProxy(main, {
+          scrollTop(value) {
+            return arguments.length
+              ? scroll.scrollTo(value, 0, 0)
+              : scroll.scroll.instance.scroll.y;
+          },
+          getBoundingClientRect() {
+            return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+          },
+          pinType: main.style.transform ? 'transform' : 'fixed',
+        });
+
+        scroll.on('scroll', ScrollTrigger.update);
+        ScrollTrigger.addEventListener('refresh', () => scroll.update());
+        ScrollTrigger.refresh();
+
+        gsap.fromTo('.line',
+          { opacity: 0, y: 50, scale: 0.95 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 1.5,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.line',
+              scroller: main,
+              start: 'top 80%',
+              toggleActions: 'play none none none',
+            },
+          }
+        );
+      }
+    });
+  </script>
+</body>
+</html>
