@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+	
+<!-- GSAP + ScrollTrigger + jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  /* Reset */
+  *,*::before,*::after{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; }
+
+  body{
+    font-family: 'Lato', sans-serif;
+    background: #F4EEE6;
+    color: #2D2926;
+    overflow-x:hidden;
+  }
+
+  /* Hero */
+  .hero-content {
+    height: 60vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding: 0 20px;
+  }
+  .line {
+    opacity: 0;
+    font-weight: 700;
+    color: #2D2926;
+    margin-bottom: -40px;
+    line-height: 1.2;
+  }
+  
+  /* Responsive font sizes */
+  .line {
+    font-size: 40px;
+  }
+  
+  @media (min-width: 768px) {
+    .line {
+      font-size: 80px;
+      margin-bottom: -60px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .line {
+      font-size: 120px;
+      margin-bottom: -80px;
+    }
+  }
+  
+  .line span {
+    font-weight: 300;
+    font-style: italic;
+    color: #2D2926;
+  }
+
+  /* Sticky video */
+  .stickey_circle_wrap{
+    position: relative;
+    height:120vh;
+  }
+  .circle {
+    position: sticky;
+    margin-inline:auto;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    top: 40vh; /* Default for JS to override */
+  }
+  .circle::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(80% 60% at 70% 30%, rgba(34,211,238,0.15), transparent 60%),
+      radial-gradient(60% 50% at 20% 80%, rgba(168,85,247,0.12), transparent 70%);
+    filter: blur(12px);
+    z-index:0;
+  }
+  .circle video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:1;
+  }
+  
+  /* Utility classes for responsive video */
+  .hide_mob {
+    display: none;
+  }
+  
+  @media (min-width: 768px) {
+    .hide_mob {
+      display: block;
+    }
+    .hide_desk {
+      display: none;
+    }
+  }
+</style>
+</head>
+	
+<body>
+
+  <!-- Hero text -->
+  <section class="hero-content-sec">
+    <div class="hero-content zoom-heading">
+      <div class="text-container-main">
+        <div class="line">Where design<br/><span>breathes,</span></div>
+      </div>
+    </div>
+
+    <!-- Sticky video -->
+    <div class="stickey_circle_wrap">
+      <div class="circle">
+        <video class="circle-video hide_mob" autoplay muted playsinline loop preload="metadata">
+          <source src="https://kho.social/shambhavi/wp-content/uploads/2025/09/home-video1.mp4" />
+        </video>
+        <video class="circle-video hide_desk" autoplay muted playsinline loop preload="metadata">
+          <source src="https://kho.social/shambhavi/wp-content/uploads/2025/09/home-video-mo.mp4" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// Fade-in for .line
+gsap.fromTo(".line",
+  { opacity: 0, y: 50, scale: 0.35 },
+  {
+    opacity: 1, y: 0, scale: 1,
+    duration: 1.5,
+    ease: "power2.out",
+    scrollTrigger: {
+      trigger: ".line",
+      start: "top 80%",
+      toggleActions: "play none none none"
+    }
+  }
+);
+
+// Zoom-out for hero text
+gsap.to(".hero-content", {
+  scale: 0.2,
+  transformOrigin: "center center",
+  ease: "none",
+  scrollTrigger: {
+    trigger: ".hero-content-sec",
+    start: "top top",
+    end: "bottom top",
+    scrub: true
+  }
+});
+
+// ✅ Responsive circle morph animations
+ScrollTrigger.matchMedia({
+
+  // Mobile 1: 300px–500px
+  "(max-width: 500px)": function() {
+    initCircleAnimation({
+      from: { width:"16em", height:"24em", borderRadius:"16em" },
+      to: { width:"110%", height:"130vh", borderRadius:"0px" }
+    });
+  },
+  
+  // Mobile 2: 501px–767px
+  "(min-width: 501px) and (max-width: 767px)": function() {
+    initCircleAnimation({
+      from: { width:"20em", height:"30em", borderRadius:"20em" }, 
+      to: { width:"115%", height:"125vh", borderRadius:"0px" }
+    });
+  },
+
+  // Tablet: 768px–1024px
+  "(min-width: 768px) and (max-width: 1024px)": function() {
+    initCircleAnimation({
+      from: { width:"22em", height:"35em", borderRadius:"22em" },
+      to:   { width:"105%", height:"100vh", borderRadius:"0px" }
+    });
+  },
+
+  // Desktop: 1025px and up
+  "(min-width: 1025px)": function() {
+    initCircleAnimation({
+      from: { width:"25em", height:"40em", borderRadius:"25em" },
+      to:   { width:"108%", height:"110vh", borderRadius:"-25px" }
+    });
+  },
+
+  // Fallback for all other screens
+  "all": function() {
+    initCircleAnimation({
+      from: { width:"20em", height:"30em", borderRadius:"20em" },
+      to: { width:"110%", height:"120vh", borderRadius:"0px" }
+    });
+  }
+
+});
+
+// Reusable init function
+function initCircleAnimation({ from, to }) {
+  $(".stickey_circle_wrap").each(function () {
+    const $wrap = $(this);
+    const $circle = $wrap.find(".circle");
+    const $video  = $wrap.find(".circle-video");
+
+    gsap.set($circle, from);
+
+    function setDynamicCircleTop() {
+      const vh = window.innerHeight;
+      const dynamicTop = vh * 0.4; // keep ~40% from top
+      $circle.css("top", dynamicTop + "px");
+    }
+
+    setDynamicCircleTop();
+    window.addEventListener("resize", setDynamicCircleTop);
+
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: $wrap,
+        start: "top center",
+        end: "top+=900 center",
+        scrub: true
+      }
+    })
+    .fromTo($circle, from, to, { ease:"none" });
+
+    // Play / pause video based on scroll
+    ScrollTrigger.create({
+      trigger: $wrap,
+      start: "top bottom",
+      end: "bottom top",
+      onEnter: () => $video.get(0)?.play?.(),
+      onEnterBack: () => $video.get(0)?.play?.(),
+      onLeave: () => $video.get(0)?.pause?.(),
+      onLeaveBack: () => $video.get(0)?.pause?.()
+    });
+  });
+}
+
+// Handle window resize to recalculate animations
+let resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function() {
+    ScrollTrigger.refresh();
+  }, 250);
+});
+</script>
+</body>
+</html>
